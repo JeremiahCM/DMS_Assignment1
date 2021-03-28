@@ -114,7 +114,7 @@ public class EmployeeServlet extends HttpServlet {
          out.println("<title>PetServlet Response</title>");
          out.println("</head>");
          out.println("<body>");
-         out.println("<h1>Pets Found for Species " + filter(e_id)
+         out.println("<h1>ID found here it is " + filter(e_id)
             + "</h1>");
          if (resultSet != null)
          {
