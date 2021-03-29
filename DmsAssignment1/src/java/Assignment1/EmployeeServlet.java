@@ -32,10 +32,11 @@ import javax.sql.DataSource;
     "/EmployeeServlet"
 }, initParams = 
 {
-    @WebInitParam(name = "dbTable", value = "e_id")
+    @WebInitParam(name = "dbTable", value = "dgn1399_employees")
+   ,@WebInitParam(name = "dbe_idAtt", value = "e_id")
    ,@WebInitParam(name = "dblast_nameAtt", value = "last_name")
    ,@WebInitParam(name = "dbfirst_nameAtt", value = "first_name")
-   ,@WebInitParam(name = "db_job_Att", value = "job")     
+   ,@WebInitParam(name = "dbjob_Att", value = "job")     
 })
 
 public class EmployeeServlet extends HttpServlet {
@@ -67,11 +68,12 @@ public class EmployeeServlet extends HttpServlet {
       // obtain servlet configuration values from annotation or web.xml
       ServletConfig config = getServletConfig();
       String dbTable = config.getInitParameter("dbTable");
+      String dbe_idAtt = config.getInitParameter("dbe_idAtt");
       String dblast_nameAtt = config.getInitParameter("dblast_nameAtt");
       String dbfirst_nameAtt = config.getInitParameter("dbfirst_nameAtt");
-      String db_job_Att = config.getInitParameter("db_job_Att");
-      sqlCommand = "SELECT " + dbfirst_nameAtt + " AS NAME," + dblast_nameAtt
-         + " AS OWNER FROM " + dbTable + " WHERE " + db_job_Att
+      String dbjob_Att = config.getInitParameter("dbjob_Att");
+      sqlCommand = "SELECT " + dbfirst_nameAtt + " AS FIRST_NAME," + dblast_nameAtt
+         + " AS LAST_NAME," + dbjob_Att + " AS JOB FROM " + dbTable + " WHERE " + dbe_idAtt
          + " LIKE ?";
    }
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
@@ -111,24 +113,27 @@ public class EmployeeServlet extends HttpServlet {
         out.println("<!DOCTYPE html>");
          out.println("<html>");
          out.println("<head>");
-         out.println("<title>PetServlet Response</title>");
+         out.println("<title>EmployeeServlet Response</title>");
          out.println("</head>");
          out.println("<body>");
-         out.println("<h1>ID found here it is " + filter(e_id)
+         out.println("<h1>Found Employee with ID " + filter(e_id)
             + "</h1>");
          if (resultSet != null)
          {
             out.println("<TABLE cellspacing=1 border=5>");
             out.println("<TR><TD><B>First Name</B></TD>"
-               + "<TD><B>Last Name</B></TD></TR>");
+               + "<TD><B>Last Name</B></TD>"
+               + "<TD><B>Job</B></TD></TR>");
             try
             {
                while (resultSet.next())
                {
-                  String fname = resultSet.getString("FIRST_NAME");
-                  String lname = resultSet.getString("LAST_NAME");
+                  String fname = resultSet.getString("first_name");
+                  String lname = resultSet.getString("last_name");
+                  String job = resultSet.getString("job");
                   out.println("<TR><TD>" + filter(fname) + "</TD><TD>"
-                     + filter(lname) + "</TD></TR>");
+                     + filter(lname) + "</TD><TD>"
+                     + filter(job) +"</TD></TR>");
                }
             }
             catch (SQLException e)
