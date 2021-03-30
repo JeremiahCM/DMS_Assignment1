@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
+import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
@@ -70,6 +71,11 @@ public class EmployeeEntityServlet extends HttpServlet
                dude.setFname(firstName);
                dude.setFname(lastName);
                dude.setEmpJob(job);
+               try {
+                   userTrans.begin();
+               } catch (NotSupportedException ex) {
+                   Logger.getLogger(EmployeeEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
+               }
                entityManager.persist(dude);
                userTrans.commit();
            }
