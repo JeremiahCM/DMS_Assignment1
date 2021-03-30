@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.servlet.RequestDispatcher;
@@ -21,6 +22,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 /**
  *
@@ -36,7 +38,11 @@ import javax.sql.DataSource;
    ,@WebInitParam(name = "dbe_idAtt", value = "e_id")
    ,@WebInitParam(name = "dblast_nameAtt", value = "last_name")
    ,@WebInitParam(name = "dbfirst_nameAtt", value = "first_name")
-   ,@WebInitParam(name = "dbjob_Att", value = "job")     
+   ,@WebInitParam(name = "dbjob_Att", value = "job")
+   ,@WebInitParam(name = "dbTable2", value = "dgn1399_tasks")
+   ,@WebInitParam(name = "dbTable3", value = "dgn1399_employee_tasks")
+   ,@WebInitParam(name = "dbt_idAtt", value = "t_id")
+   ,@WebInitParam(name = "dbtask_nameAtt", value = "task_name")
 })
 
 public class EmployeeServlet extends HttpServlet {
@@ -53,6 +59,7 @@ public class EmployeeServlet extends HttpServlet {
     private final char QUOTE = '"';
     private Logger logger;
     private String sqlCommand;
+    private String sqlCommand2;
     
     @Resource(mappedName = "jdbc/MySQLEmployeeRes")
     private DataSource dataSauce;
@@ -72,24 +79,125 @@ public class EmployeeServlet extends HttpServlet {
       String dblast_nameAtt = config.getInitParameter("dblast_nameAtt");
       String dbfirst_nameAtt = config.getInitParameter("dbfirst_nameAtt");
       String dbjob_Att = config.getInitParameter("dbjob_Att");
+      String dbTable2 = config.getInitParameter("dbTable2");
+      String dbTable3 = config.getInitParameter("dbTable3");
+      String dbt_idAtt = config.getInitParameter("dbt_idAtt");
+      String dbtask_nameAtt = config.getInitParameter("dbtask_nameAtt");
       sqlCommand = "SELECT " + dbfirst_nameAtt + " AS FIRST_NAME," + dblast_nameAtt
          + " AS LAST_NAME," + dbjob_Att + " AS JOB FROM " + dbTable + " WHERE " + dbe_idAtt
          + " LIKE ?";
+      sqlCommand2 = "SELECT " + dbt_idAtt + " AS TASK_ID, " + dbtask_nameAtt + " AS TASK_NAME FROM "
+              + dbTable3 + " INNER JOIN " + dbTable2 + " USING (" + dbt_idAtt + ") WHERE "
+              + dbe_idAtt + " LIKE ?";
+
    }
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        /*insert entity code here for redirection
+            throws ServletException, IOException, SQLException {
         
+        HttpSession session = request.getSession(true);
+        String userId = session.getId();
+        
+        String fsName = request.getParameter("firstName");
+        String lsName = request.getParameter("lastName");
+        String task = request.getParameter("jobs");
+        String e_id = request.getParameter("e_id");
+        boolean insertionCheck = fsName != null && lsName != null && task != null;
+        System.out.println("Sertion check "+fsName);
+        
+        
+        if(insertionCheck)
+        {
+            Connection conn = null;
+            PreparedStatement prepStmt = null;
+            ResultSet resultSet = null;
+            String tempid = "%";
+            int addIndex = 0;
+             // query database
+             if (sqlCommand != null && dataSauce != null)
+             {
+                try
+                {
+                   conn = dataSauce.getConnection();
+                   prepStmt = conn.prepareStatement(sqlCommand);
+                   prepStmt.setString(1, tempid);
+                   resultSet = prepStmt.executeQuery();
+                   logger.info("Successfully sasd executed query for e_id "
+                      + e_id);
+                }
+                catch (SQLException e)
+                {
+                   logger.severe("Unable to execute query for e_id "
+                      + tempid + ": " + e);
+                }
+             }
+             
+            try
+            {
+               while (resultSet.next())
+               {
+                  if(resultSet.last())
+                  {
+                      tempid = resultSet.getString("e_id");
+                      addIndex = Integer.parseInt(tempid);
+                      addIndex++;
+                      System.out.println("incremented");
+                  }
+               }
+            }
+            catch (SQLException e)
+            {
+               logger.severe("Exception in result set for species "
+                  + e_id + ": " + e);
+            }
+            if(dataSauce != null)
+            {
+                conn = dataSauce.getConnection();
+                tempid = ""+addIndex;
+                System.out.println("tempid is "+tempid);
+                prepStmt = conn.prepareStatement("INSERT INTO dgn1399_employees(e_id, first_name, last_name, job) VALUES (?, ?, ?, ?)");
+                prepStmt.setString(1, tempid);
+                prepStmt.setString(2, fsName);
+                prepStmt.setString(3, lsName);
+                prepStmt.setString(4, task);
+                System.out.println("ENTERED ON");
+                prepStmt.executeUpdate();
+            }
+        }
+        else if(e_id != null && !insertionCheck )
+        {
+
+        }
+        else
+        {
+            //throw that hoe to the error page
+        }
+        /*insert entity code here for redirection
+                   try
+            {
+               while (resultSet.next())
+               {
+                  String name = resultSet.getString("NAME");
+                  String owner = resultSet.getString("OWNER");
+                  out.println("<TR><TD>" + filter(name) + "</TD><TD>"
+                     + filter(owner) + "</TD></TR>");
+               }
+            }
+            catch (SQLException e)
+            {
+               logger.severe("Exception in result set for species "
+                  + species + ": " + e);
+            }
         
         
         */
-      String e_id = request.getParameter("e_id");
+
       if (e_id== null || e_id.length() == 0)
          e_id = "%";
       // query database
       Connection conn = null;
       PreparedStatement prepStmt = null;
       ResultSet resultSet = null;
+      ResultSet resultSet2 = null;
       if (sqlCommand != null && dataSauce != null)
       {
          try
@@ -98,7 +206,7 @@ public class EmployeeServlet extends HttpServlet {
             prepStmt = conn.prepareStatement(sqlCommand);
             prepStmt.setString(1, e_id);
             resultSet = prepStmt.executeQuery();
-            logger.info("Successfully executed query for e_id "
+            logger.info("Successfully sasd executed query for e_id "
                + e_id);
          }
          catch (SQLException e)
@@ -107,6 +215,25 @@ public class EmployeeServlet extends HttpServlet {
                + e_id + ": " + e);
          }
       }
+      
+      if (sqlCommand2 != null && dataSauce != null)
+      {
+         try
+         {
+            conn = dataSauce.getConnection();
+            prepStmt = conn.prepareStatement(sqlCommand2);
+            prepStmt.setString(1, e_id);
+            resultSet2 = prepStmt.executeQuery();
+            logger.info("Successfully executed tasks query for e_id "
+               + e_id);
+         }
+         catch (SQLException e)
+         {
+            logger.severe("Unable to execute tasks query for e_id "
+               + e_id + ": " + e);
+         }
+      }
+      
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
@@ -143,6 +270,30 @@ public class EmployeeServlet extends HttpServlet {
             }
             out.println("</TABLE>");
          }
+         
+         if (resultSet2 != null)
+         {
+            out.println("<TABLE cellspacing=1 border=5>");
+            out.println("<TR><TD><B>Task ID</B></TD>"
+               + "<TD><B>Task Name</B></TD></TR>");
+            try
+            {
+               while (resultSet2.next())
+               {
+                  String t_id = resultSet2.getString("task_id");
+                  String task_name = resultSet2.getString("task_name");
+                  out.println("<TR><TD>" + filter(t_id) + "</TD><TD>"
+                     + filter(task_name) +"</TD></TR>");
+               }
+            }
+            catch (SQLException e)
+            {   
+               logger.severe("Exception in results "
+                  + e_id + ": " + e);
+            }
+            out.println("</TABLE>");
+         }
+         
          try
          {
             if (prepStmt != null)
@@ -161,6 +312,11 @@ public class EmployeeServlet extends HttpServlet {
         out.println("<P><A href=" + QUOTE
             + response.encodeURL("index.html") + QUOTE + ">"
             + "View the jobs</A></P>");
+                out.println("<P><A href=" + QUOTE
+            + response.encodeURL("AddEmployee.jsp") + QUOTE + ">"
+            + "Enter another employee</A></P>");
+        out.println("<h4>Your unique session id is " + userId
+            + "</h4>");
          out.println("</body>");
          out.println("</html>");
         }
@@ -200,7 +356,11 @@ public class EmployeeServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            processRequest(request, response);
+        } catch (SQLException ex) {
+            Logger.getLogger(EmployeeServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -214,7 +374,14 @@ public class EmployeeServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+   {
+       try {
+           processRequest(request, response);
+       } catch (SQLException ex) {
+           Logger.getLogger(EmployeeServlet.class.getName()).log(Level.SEVERE, null, ex);
+       }
+
+   }
     }
 
     /**
