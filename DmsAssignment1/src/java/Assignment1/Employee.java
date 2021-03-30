@@ -1,59 +1,69 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * JPA Entity class that represents a Pet
+ * @see PetEntityServlet.java
  */
 package Assignment1;
 
 import java.io.Serializable;
-/**
- *
- * @author churr
- */
-public class Employee implements Serializable{
-    
-   private String firstName;
-   private String lastName;
-   private String employeeID;
-   
-   Employee()
-   {
-      firstName = null;
-      lastName = null;
-      employeeID = null;
-   }
-   
-   public String getFirstName()
-   {
-      return firstName;
-   }
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.Table;
 
-   public void setFirstName(String firstName)
-   {
-      this.firstName = firstName;
-   }
+@Entity
+@Table(name = "dgn1399_employees")
+@IdClass(value = EmployeePK.class)
+public class Employee implements Serializable
+{
+   private static final long serialVersionUID = 1L;
+   @Id
+   @GeneratedValue(strategy = GenerationType.IDENTITY)
+   private int id;
+   @Column(name = "first_name")
+   private String fName;
+   @Column(name = "last_name")
+   private String lName;
+   @Column(name = "job")
+   private String empJob;
 
-   public String getLastName()
+   public Employee()
    {
-      return lastName;
-   }
-
-   public void setLastName(String lastName)
-   {
-      this.lastName = lastName;
    }
    
-   public void setEmployeeID(String id)
-   {
-       this.employeeID = id;
-   }
    
-   public String getEmployeeID()
+   public void setFname(String fName)
    {
-       return this.employeeID;
-   }    
-    
+      this.fName = fName;
+   }
 
-    
-    
+   public String getFname()
+   {
+      return fName;
+   }
+
+   public void setLname(String lName)
+   {
+      this.lName = lName;
+   }
+
+   public String getlName()
+   {
+      return lName;
+   }
+
+   public void setEmpJob(String empJob)
+   {
+      this.empJob = empJob;
+   }
+
+   public String getEmpJob()
+   {
+      return empJob;
+   }
+
+
+
 }

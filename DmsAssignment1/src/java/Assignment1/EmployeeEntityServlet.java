@@ -11,7 +11,9 @@ package Assignment1;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -20,6 +22,11 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
+import javax.transaction.UserTransaction;
 
 @WebServlet(name = "EmployeeEntityServlet", urlPatterns =
 {
@@ -32,6 +39,8 @@ public class EmployeeEntityServlet extends HttpServlet
    private Logger logger;
    @PersistenceContext
    private EntityManager entityManager;
+   @Resource
+   private UserTransaction userTrans;
 
    /**
     * Creates a new instance of EmployeeServlet
@@ -45,58 +54,60 @@ public class EmployeeEntityServlet extends HttpServlet
       HttpServletResponse response)
       throws ServletException, IOException
    {
-      String e_id = request.getParameter("e_id");
-      if (e_id == null || e_id.length() == 0)
-         e_id = "%";
-      // query database using JPA and the Employee entity
-      List<Employee> employeeList = null;
-      if (entityManager != null)
-      {
-         String jpqlCommand
-            = "SELECT e FROM Employee e WHERE e.employeeID LIKE :e_id";
-         Query query
-            = entityManager.createQuery(jpqlCommand);
-         query.setParameter("e_id", e_id);
-         employeeList = query.getResultList();
-         logger.info("Successfully executed jpql query for employee "
-            + e_id);
-      }
-      // set response headers before returning any message content
+       
+       String firstName = request.getParameter("firstName");
+       String lastName = request.getParameter("lastName");
+       String job = request.getParameter("job");
+       
+       if(firstName == null || lastName == null || job == null || lastName.length() == 0 || firstName.length() == 0 || job.length() == 0 )
+       {
+           response.sendRedirect(request.getContextPath() + "");
+       }
+       else if(entityManager != null)
+       {
+           try {
+               Employee dude = new Employee();
+               dude.setFname(firstName);
+               dude.setFname(lastName);
+               dude.setEmpJob(job);
+               entityManager.persist(dude);
+               userTrans.commit();
+           }
+           catch (RollbackException ex) {
+               Logger.getLogger(EmployeeEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
+           } catch (HeuristicMixedException ex) {
+               Logger.getLogger(EmployeeEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
+           } catch (HeuristicRollbackException ex) {
+               Logger.getLogger(EmployeeEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
+           } catch (SecurityException ex) {
+               Logger.getLogger(EmployeeEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
+           } catch (IllegalStateException ex) {
+               Logger.getLogger(EmployeeEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
+           } catch (SystemException ex) {
+               Logger.getLogger(EmployeeEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
+           }
+           
+       }
       response.setContentType("text/html;charset=UTF-8");
       try (PrintWriter out = response.getWriter())
       {
          out.println("<!DOCTYPE html>");
          out.println("<html>");
          out.println("<head>");
-         out.println("<title>Pet Entity Servlet Response</title>");
+         out.println("<title>Input response</title>");
          out.println("</head>");
          out.println("<body>");
-         out.println("<h1>Employee Found for ID " + filter(e_id)
-            + "</h1>");
-         if (employeeList != null)
-         {
-            out.println("<table cellspacing=1 border=5>");
-            out.println("<tr><td><b>Pet Name</b></td>"
-               + "<td><b>Pet Owner</b></td></tr>");
-            for (Employee pet : employeeList)
-            {
-               String first_name = pet.getFirstName();
-               String last_name = pet.getLastName();
-               out.println("<tr><td>" + filter(first_name) + "</td><td>"
-                  + filter(last_name) + "</td></tr>");
-            }
-            out.println("</table>");
-         }
+         out.println("<h1>Pets Found for Species " + filter(firstName)
+            + " "+filter(lastName)+ "</h1>");
          out.println("<p><a href=" + QUOTE
             + response.encodeURL("index.html") + QUOTE + ">"
-            + "Return to Pet Information Page</a></p>");
+            + "Return to Home page</a></p>");
          out.println("</body>");
          out.println("</html>");
       }
    }
-
-   // filter string so that it doesn't contain special HTML characters
-   public static String filter(String text)
+   
+    public static String filter(String text)
    {
       StringBuilder buffer = new StringBuilder();
       for (int i = 0; i < text.length(); i++)
@@ -117,6 +128,7 @@ public class EmployeeEntityServlet extends HttpServlet
       }
       return buffer.toString();
    }
+
 
    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
    /**

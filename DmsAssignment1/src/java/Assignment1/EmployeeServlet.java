@@ -96,81 +96,7 @@ public class EmployeeServlet extends HttpServlet {
         
         HttpSession session = request.getSession(true);
         String userId = session.getId();
-        
-        String fsName = request.getParameter("firstName");
-        String lsName = request.getParameter("lastName");
-        String task = request.getParameter("jobs");
         String e_id = request.getParameter("e_id");
-        boolean insertionCheck = fsName != null && lsName != null && task != null;
-        System.out.println("Sertion check "+fsName);
-        
-        
-        if(insertionCheck)
-        {
-            Connection conn = null;
-            PreparedStatement prepStmt = null;
-            ResultSet resultSet = null;
-            String tempid = "%";
-            int addIndex = 0;
-             // query database
-             if (sqlCommand != null && dataSauce != null)
-             {
-                try
-                {
-                   conn = dataSauce.getConnection();
-                   prepStmt = conn.prepareStatement(sqlCommand);
-                   prepStmt.setString(1, tempid);
-                   resultSet = prepStmt.executeQuery();
-                   logger.info("Successfully sasd executed query for e_id "
-                      + e_id);
-                }
-                catch (SQLException e)
-                {
-                   logger.severe("Unable to execute query for e_id "
-                      + tempid + ": " + e);
-                }
-             }
-             
-            try
-            {
-               while (resultSet.next())
-               {
-                  if(resultSet.last())
-                  {
-                      tempid = resultSet.getString("e_id");
-                      addIndex = Integer.parseInt(tempid);
-                      addIndex++;
-                      System.out.println("incremented");
-                  }
-               }
-            }
-            catch (SQLException e)
-            {
-               logger.severe("Exception in result set for species "
-                  + e_id + ": " + e);
-            }
-            if(dataSauce != null)
-            {
-                conn = dataSauce.getConnection();
-                tempid = ""+addIndex;
-                System.out.println("tempid is "+tempid);
-                prepStmt = conn.prepareStatement("INSERT INTO dgn1399_employees(e_id, first_name, last_name, job) VALUES (?, ?, ?, ?)");
-                prepStmt.setString(1, tempid);
-                prepStmt.setString(2, fsName);
-                prepStmt.setString(3, lsName);
-                prepStmt.setString(4, task);
-                System.out.println("ENTERED ON");
-                prepStmt.executeUpdate();
-            }
-        }
-        else if(e_id != null && !insertionCheck )
-        {
-
-        }
-        else
-        {
-            //throw that hoe to the error page
-        }
         /*insert entity code here for redirection
                    try
             {
@@ -361,6 +287,7 @@ public class EmployeeServlet extends HttpServlet {
         } catch (SQLException ex) {
             Logger.getLogger(EmployeeServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }
 
     /**
@@ -374,16 +301,14 @@ public class EmployeeServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-   {
-       try {
-           processRequest(request, response);
-       } catch (SQLException ex) {
-           Logger.getLogger(EmployeeServlet.class.getName()).log(Level.SEVERE, null, ex);
-       }
-
-   }
+        try {
+            processRequest(request, response);
+        } catch (SQLException ex) {
+            Logger.getLogger(EmployeeServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+   
     }
-
+    
     /**
      * Returns a short description of the servlet.
      *
