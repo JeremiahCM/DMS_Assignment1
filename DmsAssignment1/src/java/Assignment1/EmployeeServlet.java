@@ -89,162 +89,182 @@ public class EmployeeServlet extends HttpServlet {
       sqlCommand2 = "SELECT " + dbt_idAtt + " AS TASK_ID, " + dbtask_nameAtt + " AS TASK_NAME FROM "
               + dbTable3 + " INNER JOIN " + dbTable2 + " USING (" + dbt_idAtt + ") WHERE "
               + dbe_idAtt + " LIKE ?";
-
    }
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
         
         HttpSession session = request.getSession(true);
         String userId = session.getId();
-        String e_id = request.getParameter("e_id");
-        /*insert entity code here for redirection
-                   try
+        String e_id = null;
+        String first_name = null;
+        String last_name = null;
+        String job = null;
+        RequestDispatcher dispatcher = null;
+        
+        //Request type default string
+        String requestType = (String) session.getAttribute("request");
+        System.out.println("Request Type: " + requestType);
+        
+        if (requestType.equals("remove"))
+        {
+            e_id = request.getParameter("e_id");
+            
+            System.out.println("Elsewhere");
+            
+            dispatcher
+               = getServletContext().getRequestDispatcher("/EmployeeRemoveEntityServlet");
+            dispatcher.forward(request, response);
+        }
+        
+        else if (requestType.equals("add"))
+        {
+            System.out.println("Here");
+            
+            first_name = request.getParameter("first_name");
+            last_name = request.getParameter("last_name");
+            job = request.getParameter("job");
+            
+               dispatcher
+                  = getServletContext().getRequestDispatcher("/EmployeeAddEntityServlet");
+               dispatcher.forward(request, response);
+        }
+        
+        else
+        {
+            e_id = request.getParameter("e_id");
+            
+            if (e_id== null || e_id.length() == 0)
+               e_id = "%";
+            // query database
+            Connection conn = null;
+            PreparedStatement prepStmt = null;
+            ResultSet resultSet = null;
+            ResultSet resultSet2 = null;
+            if (sqlCommand != null && dataSauce != null)
             {
-               while (resultSet.next())
+               try
                {
-                  String name = resultSet.getString("NAME");
-                  String owner = resultSet.getString("OWNER");
-                  out.println("<TR><TD>" + filter(name) + "</TD><TD>"
-                     + filter(owner) + "</TD></TR>");
+                  conn = dataSauce.getConnection();
+                  prepStmt = conn.prepareStatement(sqlCommand);
+                  prepStmt.setString(1, e_id);
+                  resultSet = prepStmt.executeQuery();
+                  logger.info("Successfully sasd executed query for e_id "
+                     + e_id);
+               }
+               catch (SQLException e)
+               {
+                  logger.severe("Unable to execute query for e_id "
+                     + e_id + ": " + e);
                }
             }
-            catch (SQLException e)
-            {
-               logger.severe("Exception in result set for species "
-                  + species + ": " + e);
-            }
-        
-        
-        */
 
-      if (e_id== null || e_id.length() == 0)
-         e_id = "%";
-      // query database
-      Connection conn = null;
-      PreparedStatement prepStmt = null;
-      ResultSet resultSet = null;
-      ResultSet resultSet2 = null;
-      if (sqlCommand != null && dataSauce != null)
-      {
-         try
-         {
-            conn = dataSauce.getConnection();
-            prepStmt = conn.prepareStatement(sqlCommand);
-            prepStmt.setString(1, e_id);
-            resultSet = prepStmt.executeQuery();
-            logger.info("Successfully sasd executed query for e_id "
-               + e_id);
-         }
-         catch (SQLException e)
-         {
-            logger.severe("Unable to execute query for e_id "
-               + e_id + ": " + e);
-         }
-      }
-      
-      if (sqlCommand2 != null && dataSauce != null)
-      {
-         try
-         {
-            conn = dataSauce.getConnection();
-            prepStmt = conn.prepareStatement(sqlCommand2);
-            prepStmt.setString(1, e_id);
-            resultSet2 = prepStmt.executeQuery();
-            logger.info("Successfully executed tasks query for e_id "
-               + e_id);
-         }
-         catch (SQLException e)
-         {
-            logger.severe("Unable to execute tasks query for e_id "
-               + e_id + ": " + e);
-         }
-      }
-      
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-        out.println("<!DOCTYPE html>");
-         out.println("<html>");
-         out.println("<head>");
-         out.println("<title>EmployeeServlet Response</title>");
-         out.println("</head>");
-         out.println("<body>");
-         out.println("<h1>Found Employee with ID " + filter(e_id)
-            + "</h1>");
-         if (resultSet != null)
-         {
-            out.println("<TABLE cellspacing=1 border=5>");
-            out.println("<TR><TD><B>First Name</B></TD>"
-               + "<TD><B>Last Name</B></TD>"
-               + "<TD><B>Job</B></TD></TR>");
-            try
+            if (sqlCommand2 != null && dataSauce != null)
             {
-               while (resultSet.next())
+               try
                {
-                  String fname = resultSet.getString("first_name");
-                  String lname = resultSet.getString("last_name");
-                  String job = resultSet.getString("job");
-                  out.println("<TR><TD>" + filter(fname) + "</TD><TD>"
-                     + filter(lname) + "</TD><TD>"
-                     + filter(job) +"</TD></TR>");
+                  conn = dataSauce.getConnection();
+                  prepStmt = conn.prepareStatement(sqlCommand2);
+                  prepStmt.setString(1, e_id);
+                  resultSet2 = prepStmt.executeQuery();
+                  logger.info("Successfully executed tasks query for e_id "
+                     + e_id);
+               }
+               catch (SQLException e)
+               {
+                  logger.severe("Unable to execute tasks query for e_id "
+                     + e_id + ": " + e);
                }
             }
-            catch (SQLException e)
-            {
-               logger.severe("Exception in results "
-                  + e_id + ": " + e);
-            }
-            out.println("</TABLE>");
-         }
-         
-         if (resultSet2 != null)
-         {
-            out.println("<TABLE cellspacing=1 border=5>");
-            out.println("<TR><TD><B>Task ID</B></TD>"
-               + "<TD><B>Task Name</B></TD></TR>");
-            try
-            {
-               while (resultSet2.next())
+
+              response.setContentType("text/html;charset=UTF-8");
+              try (PrintWriter out = response.getWriter()) {
+                  /* TODO output your page here. You may use following sample code. */
+              out.println("<!DOCTYPE html>");
+               out.println("<html>");
+               out.println("<head>");
+               out.println("<title>EmployeeServlet Response</title>");
+               out.println("</head>");
+               out.println("<body>");
+               out.println("<h1>Found Employee with ID " + filter(e_id)
+                  + "</h1>");
+               if (resultSet != null)
                {
-                  String t_id = resultSet2.getString("task_id");
-                  String task_name = resultSet2.getString("task_name");
-                  out.println("<TR><TD>" + filter(t_id) + "</TD><TD>"
-                     + filter(task_name) +"</TD></TR>");
+                  out.println("<TABLE cellspacing=1 border=5>");
+                  out.println("<TR><TD><B>First Name</B></TD>"
+                     + "<TD><B>Last Name</B></TD>"
+                     + "<TD><B>Job</B></TD></TR>");
+                  try
+                  {
+                     while (resultSet.next())
+                     {
+                        String fname = resultSet.getString("first_name");
+                        String lname = resultSet.getString("last_name");
+                        String job_title = resultSet.getString("job");
+                        out.println("<TR><TD>" + filter(fname) + "</TD><TD>"
+                           + filter(lname) + "</TD><TD>"
+                           + filter(job_title) +"</TD></TR>");
+                     }
+                  }
+                  catch (SQLException e)
+                  {
+                     logger.severe("Exception in results "
+                        + e_id + ": " + e);
+                  }
+                  out.println("</TABLE>");
                }
-            }
-            catch (SQLException e)
-            {   
-               logger.severe("Exception in results "
-                  + e_id + ": " + e);
-            }
-            out.println("</TABLE>");
-         }
-         
-         try
-         {
-            if (prepStmt != null)
-               prepStmt.close();
-            if (conn != null)
-               conn.close(); // release conn back to pool
-         }
-         catch (SQLException e)
-         {  // ignore
-         }
-         out.println("<P><A href=" + QUOTE
-            + response.encodeURL("index.html") + QUOTE + ">"
-            + "Return to the search page</A></P>");
-         out.println("</body>");
-         out.println("</html>");
-        out.println("<P><A href=" + QUOTE
-            + response.encodeURL("index.html") + QUOTE + ">"
-            + "View the jobs</A></P>");
-                out.println("<P><A href=" + QUOTE
-            + response.encodeURL("AddEmployee.jsp") + QUOTE + ">"
-            + "Enter another employee</A></P>");
-        out.println("<h4>Your unique session id is " + userId
-            + "</h4>");
-         out.println("</body>");
-         out.println("</html>");
+
+               if (resultSet2 != null)
+               {
+                  out.println("<TABLE cellspacing=1 border=5>");
+                  out.println("<TR><TD><B>Task ID</B></TD>"
+                     + "<TD><B>Task Name</B></TD></TR>");
+                  try
+                  {
+                     while (resultSet2.next())
+                     {
+                        String t_id = resultSet2.getString("task_id");
+                        String task_name = resultSet2.getString("task_name");
+                        out.println("<TR><TD>" + filter(t_id) + "</TD><TD>"
+                           + filter(task_name) +"</TD></TR>");
+                     }
+                  }
+                  catch (SQLException e)
+                  {   
+                     logger.severe("Exception in results "
+                        + e_id + ": " + e);
+                  }
+                  out.println("</TABLE>");
+               }
+
+               try
+               {
+                  if (prepStmt != null)
+                     prepStmt.close();
+                  if (conn != null)
+                     conn.close(); // release conn back to pool
+               }
+               catch (SQLException e)
+               {  // ignore
+               }
+               out.println("<P><A href=" + QUOTE
+                  + response.encodeURL("index.jsp") + QUOTE + ">"
+                  + "Return to the search page</A></P>");
+               out.println("</body>");
+               out.println("</html>");
+              out.println("<P><A href=" + QUOTE
+                  + response.encodeURL("index.jsp") + QUOTE + ">"
+                  + "View the jobs</A></P>");
+                      out.println("<P><A href=" + QUOTE
+                  + response.encodeURL("add.jsp") + QUOTE + ">"
+                  + "Enter another employee</A></P>");
+                      out.println("<P><A href=" + QUOTE
+                  + response.encodeURL("remove.jsp") + QUOTE + ">"
+                  + "Remove an employee</A></P>");
+              out.println("<h4>Your unique session id is " + userId
+                  + "</h4>");
+               out.println("</body>");
+               out.println("</html>");
+              }
         }
     }
     

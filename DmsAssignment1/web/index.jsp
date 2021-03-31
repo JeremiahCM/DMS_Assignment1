@@ -1,10 +1,11 @@
-<%-- 
+x<%-- 
     Document   : index
     Created on : 31/03/2021, 12:46:51 AM
     Author     : churr
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%session.setAttribute("request", "search");%>
 <!DOCTYPE html>
 <html>
     <head>

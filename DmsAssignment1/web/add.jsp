@@ -5,6 +5,7 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%session.setAttribute("request", "add");%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -20,18 +21,18 @@
             }
         %>
       <h1>Please Enter Customer Details</h1>
-      <form action="EmployeeEntityServlet" method="GET">
+      <form action="EmployeeServlet" method="GET">
          <p>
             First Name:
-            <input type="text" name="firstName"/>
+            <input type="text" name="first_name"/>
          </p>
          <p>
             Last Name:
-            <input type="text" name="lastName"/>
+            <input type="text" name="last_name"/>
          </p>
          <p>
             Job:
-            <input type="text" name="e_id"/>
+            <input type="text" name="job"/>
          </p>
          <input type="submit"/>
       </form>

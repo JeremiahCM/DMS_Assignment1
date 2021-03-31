@@ -9,10 +9,11 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Login Page</title>
+        <title>Login Page for Administrator</title>
     </head>
     <body>
         <h1>Hello World!</h1>
+        <h1>Please enter your login details</h1>
         <form action = "LoginServlet">
             Enter username: <input type ="text" name = "username"><br>
             Enter password: <input type ="text" name = "password"><br>

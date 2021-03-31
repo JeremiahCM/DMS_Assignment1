@@ -29,11 +29,11 @@ import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
-@WebServlet(name = "EmployeeEntityServlet", urlPatterns =
+@WebServlet(name = "EmployeeAddEntityServlet", urlPatterns =
 {
-   "/EmployeeEntityServlet"
+   "/EmployeeAddEntityServlet"
 })
-public class EmployeeEntityServlet extends HttpServlet
+public class EmployeeAddEntityServlet extends HttpServlet
 {
 
    private final char QUOTE = '"';
@@ -46,7 +46,7 @@ public class EmployeeEntityServlet extends HttpServlet
    /**
     * Creates a new instance of EmployeeServlet
     */
-   public EmployeeEntityServlet()
+   public EmployeeAddEntityServlet()
    {
       logger = Logger.getLogger(getClass().getName());
    }
@@ -56,41 +56,46 @@ public class EmployeeEntityServlet extends HttpServlet
       throws ServletException, IOException
    {
        
-       String firstName = request.getParameter("firstName");
-       String lastName = request.getParameter("lastName");
+       String first_name = request.getParameter("first_name");
+       String last_name = request.getParameter("last_name");
        String job = request.getParameter("job");
        
-       if(firstName == null || lastName == null || job == null || lastName.length() == 0 || firstName.length() == 0 || job.length() == 0 )
-       {
-           response.sendRedirect(request.getContextPath() + "");
-       }
-       else if(entityManager != null)
+       System.out.println("T1: " + first_name);
+       System.out.println("T2: " + last_name);
+       System.out.println("T3: " + job);
+       
+       if(entityManager != null)
        {
            try {
                Employee dude = new Employee();
-               dude.setFname(firstName);
-               dude.setFname(lastName);
+               dude.setFname(first_name);
+               dude.setLname(last_name);
                dude.setEmpJob(job);
+               
+               System.out.println();
+               System.out.println("D1: " + dude.getFname());
+               System.out.println("D2: " + dude.getLname());
+               System.out.println("D3: " + dude.getEmpJob());
                try {
                    userTrans.begin();
                } catch (NotSupportedException ex) {
-                   Logger.getLogger(EmployeeEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
+                   Logger.getLogger(EmployeeAddEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
                }
                entityManager.persist(dude);
                userTrans.commit();
            }
            catch (RollbackException ex) {
-               Logger.getLogger(EmployeeEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
+               Logger.getLogger(EmployeeAddEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
            } catch (HeuristicMixedException ex) {
-               Logger.getLogger(EmployeeEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
+               Logger.getLogger(EmployeeAddEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
            } catch (HeuristicRollbackException ex) {
-               Logger.getLogger(EmployeeEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
+               Logger.getLogger(EmployeeAddEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
            } catch (SecurityException ex) {
-               Logger.getLogger(EmployeeEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
+               Logger.getLogger(EmployeeAddEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
            } catch (IllegalStateException ex) {
-               Logger.getLogger(EmployeeEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
+               Logger.getLogger(EmployeeAddEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
            } catch (SystemException ex) {
-               Logger.getLogger(EmployeeEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
+               Logger.getLogger(EmployeeAddEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
            }
            
        }
@@ -103,10 +108,10 @@ public class EmployeeEntityServlet extends HttpServlet
          out.println("<title>Input response</title>");
          out.println("</head>");
          out.println("<body>");
-         out.println("<h1>Pets Found for Species " + filter(firstName)
-            + " "+filter(lastName)+ "</h1>");
+         out.println("<h1>Added the employee " + filter(first_name)
+            + " "+filter(last_name)+ "</h1>");
          out.println("<p><a href=" + QUOTE
-            + response.encodeURL("index.html") + QUOTE + ">"
+            + response.encodeURL("index.jsp") + QUOTE + ">"
             + "Return to Home page</a></p>");
          out.println("</body>");
          out.println("</html>");

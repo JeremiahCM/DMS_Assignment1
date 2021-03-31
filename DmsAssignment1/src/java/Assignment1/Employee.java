@@ -10,18 +10,16 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.IdClass;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "dgn1399_employees")
-@IdClass(value = EmployeePK.class)
 public class Employee implements Serializable
 {
    private static final long serialVersionUID = 1L;
    @Id
-   @GeneratedValue(strategy = GenerationType.IDENTITY)
-   private int id;
+   @GeneratedValue(strategy=GenerationType.IDENTITY)
+   private int e_id;
    @Column(name = "first_name")
    private String fName;
    @Column(name = "last_name")
@@ -49,7 +47,7 @@ public class Employee implements Serializable
       this.lName = lName;
    }
 
-   public String getlName()
+   public String getLname()
    {
       return lName;
    }
@@ -63,7 +61,14 @@ public class Employee implements Serializable
    {
       return empJob;
    }
-
-
-
+   
+   public void setEmpID(int e_id)
+   {
+       this.e_id = e_id;
+   }
+   
+   public int getEmpID()
+   {
+       return e_id;
+   }
 }
