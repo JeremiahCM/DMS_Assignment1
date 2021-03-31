@@ -64,6 +64,11 @@ public class EmployeeAddEntityServlet extends HttpServlet
        System.out.println("T2: " + last_name);
        System.out.println("T3: " + job);
        
+       if(first_name == null || first_name.length() == 0 || last_name == null || last_name.length() == 0 || job == null || job.length() == 0)
+       {
+          response.sendRedirect("redirected.jsp");
+       }
+       
        if(entityManager != null)
        {
            try {

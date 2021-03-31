@@ -20,7 +20,7 @@
                 response.sendRedirect("login.jsp");
             }
         %>
-      <h1>Please Enter Customer Details</h1>
+        <h1>Please Enter The New Employee Details</h1><br>
       <form action="EmployeeServlet" method="GET">
          <p>
             First Name:
@@ -34,6 +34,7 @@
             Job:
             <input type="text" name="job"/>
          </p>
+         <br><h3>Submit to confirm</h3>
          <input type="submit"/>
       </form>
        <br/>

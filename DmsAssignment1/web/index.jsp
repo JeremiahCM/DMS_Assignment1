@@ -1,4 +1,4 @@
-x<%-- 
+<%-- 
     Document   : index
     Created on : 31/03/2021, 12:46:51 AM
     Author     : churr
@@ -21,21 +21,28 @@ x<%--
                 response.sendRedirect("login.jsp");
             }
         %>
-      h1>Add or Search this database</h1>
+      <h1>Index page for employee database</h1>
       <form method="get" action="/DmsAssignment1/EmployeeServlet">
-         <table cellpadding="0" cellspacing="0" border="0">
+         <table cellpadding="3" cellspacing="0" border="2">
             <tr>
-               <td>Search the database:</td>
+                <td>Search the database:</td>
                <td><input type="text" name="e_id"/></td>
             </tr>
-            <tr>
-               <td>
-                  <input type="checkbox" name="entities" value="true"/>
-                  Use entities
-               </td>
-               <td><INPUT type="submit" value="Search"/></td>
-            </tr>
          </table>
+          <br><INPUT type="submit" value="Search"/><br>   
       </form>
+      <br>
+      <table cellpadding="6" cellspacing="0" border="2">
+         <tr> 
+            <td><a href ="add.jsp"> 
+                Add entry</a>
+            </td>
+        </tr> 
+         <tr> 
+            <td><a href ="remove.jsp"> 
+                Remove entry</a>
+            </td> 
+        <tr> 
+      </table>
     </body>
 </html>

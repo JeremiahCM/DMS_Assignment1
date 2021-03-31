@@ -100,6 +100,8 @@ public class EmployeeServlet extends HttpServlet {
         String last_name = null;
         String job = null;
         RequestDispatcher dispatcher = null;
+        String fname = null;
+        String lname = null;
         
         //Request type default string
         String requestType = (String) session.getAttribute("request");
@@ -197,8 +199,8 @@ public class EmployeeServlet extends HttpServlet {
                   {
                      while (resultSet.next())
                      {
-                        String fname = resultSet.getString("first_name");
-                        String lname = resultSet.getString("last_name");
+                        fname = resultSet.getString("first_name");
+                        lname = resultSet.getString("last_name");
                         String job_title = resultSet.getString("job");
                         out.println("<TR><TD>" + filter(fname) + "</TD><TD>"
                            + filter(lname) + "</TD><TD>"
@@ -212,11 +214,28 @@ public class EmployeeServlet extends HttpServlet {
                   }
                   out.println("</TABLE>");
                }
+               
+                    if(fname == null || lname == null || fname.length() == 0 || lname.length() == 0)
+                    {
+                            try
+                            {
+                               if (prepStmt != null)
+                                  prepStmt.close();
+                               if (conn != null)
+                                  conn.close(); // IDK IF THIS NEEDED PLZ CHJHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+                            }
+                            catch (SQLException e)
+                            {  // ignore
+                            }
+
+                            response.sendRedirect("redirected.jsp");
+                    }
+               
 
                if (resultSet2 != null)
                {
                   out.println("<TABLE cellspacing=1 border=5>");
-                  out.println("<TR><TD><B>Task ID</B></TD>"
+                  out.println("<br><TR><TD><B>Task ID</B></TD>"
                      + "<TD><B>Task Name</B></TD></TR>");
                   try
                   {
@@ -260,13 +279,23 @@ public class EmployeeServlet extends HttpServlet {
                       out.println("<P><A href=" + QUOTE
                   + response.encodeURL("remove.jsp") + QUOTE + ">"
                   + "Remove an employee</A></P>");
-              out.println("<h4>Your unique session id is " + userId
-                  + "</h4>");
+              out.println("<h5>While searching your session id is noted as: " + userId
+                  + "</h5>");
                out.println("</body>");
                out.println("</html>");
               }
         }
     }
+    
+    /*
+     <table cellpadding="3" cellspacing="0" border="2">
+            <tr>
+                <td>Search the database:</td>
+               <td><input type="text" name="e_id"/></td>
+            </tr>
+         </table>
+          <br><INPUT type="submit" value="Search"/><br>   
+    */
     
        public static String filter(String text)
    {

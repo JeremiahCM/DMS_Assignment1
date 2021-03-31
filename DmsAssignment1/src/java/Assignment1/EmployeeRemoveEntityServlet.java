@@ -103,7 +103,8 @@ public class EmployeeRemoveEntityServlet extends HttpServlet
          out.println("<title>Remove response</title>");
          out.println("</head>");
          out.println("<body>");
-         out.println("<h1>Removed employee with ID "+filter(e_idString)+ "</h1>");
+         out.println("<h1>Removed employee sucessful</h1><br>");
+         out.println("<h2>Removed employee with ID "+filter(e_idString)+ "</h2>");
          out.println("<p><a href=" + QUOTE
             + response.encodeURL("index.jsp") + QUOTE + ">"
             + "Return to Home page</a></p>");

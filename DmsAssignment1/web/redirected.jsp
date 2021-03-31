@@ -11,9 +11,15 @@
         <title>Customer Details</title>
     </head>
     <body>
+         <%
+            if(session.getAttribute("username") == null)
+            {
+                response.sendRedirect("login.jsp");
+            }
+        %>
         <h1>Some form bad input has been detected</h1>
         <br/>
-        <h3>You can return back to the following pages</h3>
+        <h3>Use the link below to return back to the main page</h3>
         <br>
       <a href='<%= response.encodeURL(request.getContextPath()) %>'>
          Return to main page

@@ -12,12 +12,12 @@
         <title>Login Page for Administrator</title>
     </head>
     <body>
-        <h1>Hello World!</h1>
-        <h1>Please enter your login details</h1>
+        <h1>Employee modifier database</h1>
+        <h3>Please enter your login details</h3>
         <form action = "LoginServlet">
-            Enter username: <input type ="text" name = "username"><br>
-            Enter password: <input type ="text" name = "password"><br>
-            <input type = "submit" value = "login">
+            <h4> Enter username:</h4> <input type ="text" name = "username"><br>
+            <h4> Enter password: </h4><input type ="password" name = "password"><br>
+            <br> <input type = "submit" value = "login"><br>
         </form>
                                  
     </body>
