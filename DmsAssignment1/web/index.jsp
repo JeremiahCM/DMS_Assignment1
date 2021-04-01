@@ -1,12 +1,13 @@
 <%-- 
     Document   : index
     Created on : 31/03/2021, 12:46:51 AM
-    Author     : churr
+    Author     : Jeremiah Martinez: 18027693 | Sanjeel P Nath: 17987458
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%// Sets the 'request' attribute for session to indicate user may make a search request%>
 <%session.setAttribute("request", "search");%>
+<%@ page session="true" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -21,7 +22,7 @@
                 response.sendRedirect("login.jsp");
         %>
         <h1>Index page for employee database</h1>
-        <form method="get" action="/DmsAssignment1/EmployeeServlet">
+        <form method="get" action="EmployeeServlet">
             <table cellpadding="3" cellspacing="0" border="2">
                 <tr>
                     <td>Search the database:</td>
@@ -41,5 +42,11 @@
             </td> 
         <tr> 
         </table>
+        <br>
+        <form action ="LogoutServlet">
+            <input type = "submit" value="Logout">
+        </form>
+        <h4>your session id, this time is:</h4>
+        <p><%= session.getId() %></p>
     </body>
 </html>

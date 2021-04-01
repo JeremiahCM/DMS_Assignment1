@@ -2,8 +2,13 @@
  * JPA Entity class that represents an Employee
  * Entity has attribute for employee ID, first name, last name and job title
  * Implemented get and set methods to acccess and manage these attributes
- * @author Jeremiah Martinez: dgn1399
- */
+ * @author Jeremiah Martinez: 18027693 | Sanjeel P Nath: 17987458
+ * 
+ * The files have used code learned from several stackoverflow threads, Telusko youtube channel and reused
+ * from lab exercises, few bits of the following is adapted not copy and pasted, except for lab code we have used
+ *
+ * Grading Method: both equal
+*/
 package Assignment1;
 
 import java.io.Serializable;

@@ -1,7 +1,7 @@
 <%-- 
     Document   : addandremove
     Created on : 30/03/2021, 12:32:17 AM
-    Author     : churr
+    Author     : Jeremiah Martinez: 18027693 | Sanjeel P Nath: 17987458
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>

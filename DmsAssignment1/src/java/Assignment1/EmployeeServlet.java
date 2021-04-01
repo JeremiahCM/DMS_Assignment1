@@ -22,8 +22,13 @@ import javax.sql.DataSource;
 
 /*
  * Servlet which deals with an request regarding an employee via JPA and Entities
- * @author Jeremiah Martinez: dgn1399
- */
+ * @author Jeremiah Martinez: 18027693 | Sanjeel P Nath: 17987458
+ * 
+ * The files have used code learned from several stackoverflow threads, Telusko youtube channel and reused
+ * from lab exercises, few bits of the following is adapted not copy and pasted, except for lab code we have used
+ *
+ * Grading Method: both equal
+*/
 
 //Define initial servlet configuration parameters.
 @WebServlet(name = "EmployeeServlet", urlPatterns = 
@@ -307,7 +312,7 @@ public class EmployeeServlet extends HttpServlet {
                 out.println("<P><A href=" + QUOTE
                     + response.encodeURL("remove.jsp") + QUOTE + ">"
                     + "Remove an employee</A></P>");
-                out.println("<h5>While searching your session id is noted as: " + userId
+                out.println("<h5>Session ID: " + userId
                     + "</h5>");
                 out.println("</body>");
                 out.println("</html>");
