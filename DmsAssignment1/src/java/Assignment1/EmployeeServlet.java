@@ -114,7 +114,6 @@ public class EmployeeServlet extends HttpServlet {
            being made for the database, and may redirect this request.
         */
         String requestType = (String) session.getAttribute("request");
-        System.out.println("Request Type: " + requestType);
         
         /*
             Check if request is to remove an employee.
@@ -124,8 +123,6 @@ public class EmployeeServlet extends HttpServlet {
         if (requestType.equals("remove"))
         {
             e_id = request.getParameter("e_id");
-            
-            System.out.println("Elsewhere");
             
             dispatcher
                 = getServletContext().getRequestDispatcher("/EmployeeRemoveEntityServlet");
@@ -140,8 +137,6 @@ public class EmployeeServlet extends HttpServlet {
         */
         else if (requestType.equals("add"))
         {
-            System.out.println("Here");
-            
             first_name = request.getParameter("first_name");
             last_name = request.getParameter("last_name");
             job = request.getParameter("job");

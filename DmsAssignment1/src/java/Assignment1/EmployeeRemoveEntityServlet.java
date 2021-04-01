@@ -61,9 +61,7 @@ public class EmployeeRemoveEntityServlet extends HttpServlet
         */
         int e_id = Integer.parseInt(request.getParameter("e_id"));
         String e_idString = request.getParameter("e_id");
-
-        System.out.println("T1: " + e_id);
-
+        
         if(entityManager != null)
         {
             /*
@@ -77,8 +75,6 @@ public class EmployeeRemoveEntityServlet extends HttpServlet
                 Employee dude = new Employee();
                 dude.setEmpID(e_id);
 
-                System.out.println();
-                System.out.println("D1: " + dude.getEmpID());
                 try {
                     userTrans.begin();
                 } catch (NotSupportedException ex) {

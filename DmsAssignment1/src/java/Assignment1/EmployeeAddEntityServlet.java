@@ -57,11 +57,6 @@ public class EmployeeAddEntityServlet extends HttpServlet
         String first_name = request.getParameter("first_name");
         String last_name = request.getParameter("last_name");
         String job = request.getParameter("job");
-       
-        System.out.println("T1: " + first_name);
-        System.out.println("T2: " + last_name);
-        System.out.println("T3: " + job);
-
         /* 
            If one or more fields in the form is left blank, user will be taken
             to server page notifying insufficient details provided
@@ -85,10 +80,6 @@ public class EmployeeAddEntityServlet extends HttpServlet
                 dude.setLname(last_name);
                 dude.setEmpJob(job);
 
-                System.out.println();
-                System.out.println("D1: " + dude.getFname());
-                System.out.println("D2: " + dude.getLname());
-                System.out.println("D3: " + dude.getEmpJob());
                 try {
                     userTrans.begin();
                 } catch (NotSupportedException ex) {
