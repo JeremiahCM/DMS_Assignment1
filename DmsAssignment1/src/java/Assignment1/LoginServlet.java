@@ -14,39 +14,37 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-/**
- *
- * @author churr
+/*
+ * Servlet which deals with a login request to the system.
+ * @author Jeremiah Martinez: dgn1399
  */
+
 @WebServlet(name = "LoginServlet", urlPatterns = {"/LoginServlet"})
 public class LoginServlet extends HttpServlet {
-
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
+        // Retrieve values for username and password from the login request.
         String user = request.getParameter("username");
         String pass = request.getParameter("password");
         
+        /*
+           If username and password input matches sotred login details, set
+            value to 'username' attribute for the session.
+           Then take the user to the index server page.
+        */
         if(user.equals("DmsStudent") && pass.equals("fpn871"))
         {
             HttpSession session = request.getSession();
             session.setAttribute("username", user);
             response.sendRedirect("index.jsp");
         }
+        
+        // Otherwise reload the login server page.
         else
         {
             response.sendRedirect("login.jsp");
         }
-        
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

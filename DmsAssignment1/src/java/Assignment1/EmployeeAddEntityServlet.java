@@ -1,22 +1,12 @@
-/*
- * Servlet which demonstrates accessing a database via JPA and Entities
- * Note must create a connection pool and a JDBC Resource for a
- * DataSource called "jdbc/MySQLAnimalResource" on application server
- * and have persistence unit called "animalPersistenceUnit"
- * in the configuration file persistence.xml
- * @author Andrew Ensor
- */
 package Assignment1;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -29,122 +19,134 @@ import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
+/*
+ * Servlet which adds an employee from datbase via JPA and Entities
+ * This servlet handles an add request that has been forwarded from the EmployeeServlet
+ * @author Jeremiah Martinez: dgn1399
+ */
+
 @WebServlet(name = "EmployeeAddEntityServlet", urlPatterns =
 {
    "/EmployeeAddEntityServlet"
 })
 public class EmployeeAddEntityServlet extends HttpServlet
 {
+    private final char QUOTE = '"';
+    private Logger logger;
+    @PersistenceContext
+    private EntityManager entityManager;
+    @Resource
+    private UserTransaction userTrans;
 
-   private final char QUOTE = '"';
-   private Logger logger;
-   @PersistenceContext
-   private EntityManager entityManager;
-   @Resource
-   private UserTransaction userTrans;
+    // Creates a new instance of EmployeeAddEntityServlet
+    public EmployeeAddEntityServlet()
+    {
+        logger = Logger.getLogger(getClass().getName());
+    }
 
-   /**
-    * Creates a new instance of EmployeeServlet
-    */
-   public EmployeeAddEntityServlet()
-   {
-      logger = Logger.getLogger(getClass().getName());
-   }
+    protected void processRequest(HttpServletRequest request,
+        HttpServletResponse response)
+        throws ServletException, IOException
+    {
+        // Get value of employee's first name, last name and job from request.
+        String first_name = request.getParameter("first_name");
+        String last_name = request.getParameter("last_name");
+        String job = request.getParameter("job");
+       
+        System.out.println("T1: " + first_name);
+        System.out.println("T2: " + last_name);
+        System.out.println("T3: " + job);
 
-   protected void processRequest(HttpServletRequest request,
-      HttpServletResponse response)
-      throws ServletException, IOException
-   {
-       
-       String first_name = request.getParameter("first_name");
-       String last_name = request.getParameter("last_name");
-       String job = request.getParameter("job");
-       
-       System.out.println("T1: " + first_name);
-       System.out.println("T2: " + last_name);
-       System.out.println("T3: " + job);
-       
-       if(first_name == null || first_name.length() == 0 || last_name == null || last_name.length() == 0 || job == null || job.length() == 0)
-       {
-          response.sendRedirect("redirected.jsp");
-       }
-       
-       if(entityManager != null)
-       {
-           try {
-               Employee dude = new Employee();
-               dude.setFname(first_name);
-               dude.setLname(last_name);
-               dude.setEmpJob(job);
-               
-               System.out.println();
-               System.out.println("D1: " + dude.getFname());
-               System.out.println("D2: " + dude.getLname());
-               System.out.println("D3: " + dude.getEmpJob());
-               try {
-                   userTrans.begin();
-               } catch (NotSupportedException ex) {
-                   Logger.getLogger(EmployeeAddEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
-               }
-               entityManager.persist(dude);
-               userTrans.commit();
-           }
-           catch (RollbackException ex) {
-               Logger.getLogger(EmployeeAddEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
-           } catch (HeuristicMixedException ex) {
-               Logger.getLogger(EmployeeAddEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
-           } catch (HeuristicRollbackException ex) {
-               Logger.getLogger(EmployeeAddEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
-           } catch (SecurityException ex) {
-               Logger.getLogger(EmployeeAddEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
-           } catch (IllegalStateException ex) {
-               Logger.getLogger(EmployeeAddEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
-           } catch (SystemException ex) {
-               Logger.getLogger(EmployeeAddEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
-           }
-           
-       }
-      response.setContentType("text/html;charset=UTF-8");
-      try (PrintWriter out = response.getWriter())
-      {
-         out.println("<!DOCTYPE html>");
-         out.println("<html>");
-         out.println("<head>");
-         out.println("<title>Input response</title>");
-         out.println("</head>");
-         out.println("<body>");
-         out.println("<h1>Added the employee " + filter(first_name)
-            + " "+filter(last_name)+ "</h1>");
-         out.println("<p><a href=" + QUOTE
-            + response.encodeURL("index.jsp") + QUOTE + ">"
-            + "Return to Home page</a></p>");
-         out.println("</body>");
-         out.println("</html>");
-      }
-   }
+        /* 
+           If one or more fields in the form is left blank, user will be taken
+            to server page notifying insufficient details provided
+        */
+        if(first_name == null || first_name.length() == 0 || last_name == null || last_name.length() == 0 || job == null || job.length() == 0)
+            response.sendRedirect("redirected.jsp");
+
+        if(entityManager != null)
+        {
+            /*
+               Attempts to create a new employee Entity, and sets the first name,
+                last name and job for this employee.
+               Then a query will be created for the entity manager to add the new employee.
+               Finally, the query will be executed, adding this new employee to the database.
+            
+               Otherwise catch expected errors and print corresponding log messages
+            */
+            try {
+                Employee dude = new Employee();
+                dude.setFname(first_name);
+                dude.setLname(last_name);
+                dude.setEmpJob(job);
+
+                System.out.println();
+                System.out.println("D1: " + dude.getFname());
+                System.out.println("D2: " + dude.getLname());
+                System.out.println("D3: " + dude.getEmpJob());
+                try {
+                    userTrans.begin();
+                } catch (NotSupportedException ex) {
+                    Logger.getLogger(EmployeeAddEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                entityManager.persist(dude);
+                userTrans.commit();
+            } catch (RollbackException ex) {
+                Logger.getLogger(EmployeeAddEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (HeuristicMixedException ex) {
+                Logger.getLogger(EmployeeAddEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (HeuristicRollbackException ex) {
+                Logger.getLogger(EmployeeAddEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SecurityException ex) {
+                Logger.getLogger(EmployeeAddEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalStateException ex) {
+                Logger.getLogger(EmployeeAddEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SystemException ex) {
+                Logger.getLogger(EmployeeAddEntityServlet.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        // Creates the web page for result of employee added to the database
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter())
+        {
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Input response</title>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Added the employee " + filter(first_name)
+                + " "+filter(last_name)+ "</h1>");
+            out.println("<p><a href=" + QUOTE
+                + response.encodeURL("index.jsp") + QUOTE + ">"
+                + "Return to Home page</a></p>");
+            out.println("</body>");
+            out.println("</html>");
+        }
+    }
    
     public static String filter(String text)
-   {
-      StringBuilder buffer = new StringBuilder();
-      for (int i = 0; i < text.length(); i++)
-      {
-         char c = text.charAt(i);
-         if (c == '<')
-            buffer.append("&lt;");
-         else if (c == '>')
-            buffer.append("&gt;");
-         else if (c == '\"')
-            buffer.append("&quot;");
-         else if (c == '\'')
-            buffer.append("&#39;");
-         else if (c == '&')
-            buffer.append("&amp;");
-         else
-            buffer.append(c);
-      }
+    {
+        StringBuilder buffer = new StringBuilder();
+        for (int i = 0; i < text.length(); i++)
+        {
+            char c = text.charAt(i);
+            if (c == '<')
+                buffer.append("&lt;");
+            else if (c == '>')
+               buffer.append("&gt;");
+            else if (c == '\"')
+               buffer.append("&quot;");
+            else if (c == '\'')
+               buffer.append("&#39;");
+            else if (c == '&')
+               buffer.append("&amp;");
+            else
+               buffer.append(c);
+        }
       return buffer.toString();
-   }
-
+    }
 
    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
    /**

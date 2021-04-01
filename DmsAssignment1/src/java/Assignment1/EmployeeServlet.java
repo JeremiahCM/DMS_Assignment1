@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Assignment1;
 
 import java.io.IOException;
@@ -24,11 +19,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
-/**
- *
- * @author churr
+
+/*
+ * Servlet which deals with an request regarding an employee via JPA and Entities
+ * @author Jeremiah Martinez: dgn1399
  */
 
+//Define initial servlet configuration parameters.
 @WebServlet(name = "EmployeeServlet", urlPatterns = 
 {
     "/EmployeeServlet"
@@ -46,67 +43,79 @@ import javax.sql.DataSource;
 })
 
 public class EmployeeServlet extends HttpServlet {
-
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     private final char QUOTE = '"';
     private Logger logger;
-    private String sqlCommand;
-    private String sqlCommand2;
+    private String sqlCommandEmployee;
+    private String sqlCommandTask;
     
     @Resource(mappedName = "jdbc/MySQLEmployeeRes")
     private DataSource dataSauce;
     
+    // Creates a new instance of EmployeeServlet.
     public EmployeeServlet()
     {
         logger = Logger.getLogger(getClass().getName());
     }
     
-   @Override
-   public void init()
-   {
-      // obtain servlet configuration values from annotation or web.xml
-      ServletConfig config = getServletConfig();
-      String dbTable = config.getInitParameter("dbTable");
-      String dbe_idAtt = config.getInitParameter("dbe_idAtt");
-      String dblast_nameAtt = config.getInitParameter("dblast_nameAtt");
-      String dbfirst_nameAtt = config.getInitParameter("dbfirst_nameAtt");
-      String dbjob_Att = config.getInitParameter("dbjob_Att");
-      String dbTable2 = config.getInitParameter("dbTable2");
-      String dbTable3 = config.getInitParameter("dbTable3");
-      String dbt_idAtt = config.getInitParameter("dbt_idAtt");
-      String dbtask_nameAtt = config.getInitParameter("dbtask_nameAtt");
-      sqlCommand = "SELECT " + dbfirst_nameAtt + " AS FIRST_NAME," + dblast_nameAtt
-         + " AS LAST_NAME," + dbjob_Att + " AS JOB FROM " + dbTable + " WHERE " + dbe_idAtt
-         + " LIKE ?";
-      sqlCommand2 = "SELECT " + dbt_idAtt + " AS TASK_ID, " + dbtask_nameAtt + " AS TASK_NAME FROM "
-              + dbTable3 + " INNER JOIN " + dbTable2 + " USING (" + dbt_idAtt + ") WHERE "
-              + dbe_idAtt + " LIKE ?";
-   }
+    @Override
+    public void init()
+    {
+        // Obtain servlet configuration values from annotation or web.xml.
+        ServletConfig config = getServletConfig();
+        String dbTable = config.getInitParameter("dbTable");
+        String dbe_idAtt = config.getInitParameter("dbe_idAtt");
+        String dblast_nameAtt = config.getInitParameter("dblast_nameAtt");
+        String dbfirst_nameAtt = config.getInitParameter("dbfirst_nameAtt");
+        String dbjob_Att = config.getInitParameter("dbjob_Att");
+        String dbTable2 = config.getInitParameter("dbTable2");
+        String dbTable3 = config.getInitParameter("dbTable3");
+        String dbt_idAtt = config.getInitParameter("dbt_idAtt");
+        String dbtask_nameAtt = config.getInitParameter("dbtask_nameAtt");
+        
+        // Create query statements for the database.
+        /*
+           Employee query will retrieve an employee's first name, last name and
+            job title for an employee ID given by user input.
+        */
+        sqlCommandEmployee = "SELECT " + dbfirst_nameAtt + " AS FIRST_NAME," + dblast_nameAtt
+           + " AS LAST_NAME," + dbjob_Att + " AS JOB FROM " + dbTable + " WHERE " + dbe_idAtt
+           + " LIKE ?";
+        
+        /*
+           Employee query will retrieve an employee's assigned tasks, showing
+            the tasks IDs and task names based on employee ID given by user input.
+        */
+        sqlCommandTask = "SELECT " + dbt_idAtt + " AS TASK_ID, " + dbtask_nameAtt + " AS TASK_NAME FROM "
+                + dbTable3 + " INNER JOIN " + dbTable2 + " USING (" + dbt_idAtt + ") WHERE "
+                + dbe_idAtt + " LIKE ?";
+    }
+    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
         
         HttpSession session = request.getSession(true);
+        RequestDispatcher dispatcher = null;
         String userId = session.getId();
         String e_id = null;
         String first_name = null;
         String last_name = null;
         String job = null;
-        RequestDispatcher dispatcher = null;
         String fname = null;
         String lname = null;
         
-        //Request type default string
+        /*
+           Retrives 'request' attribute from the session.
+           Request attribute tells EmployeeServlet what kind of request is
+           being made for the database, and may redirect this request.
+        */
         String requestType = (String) session.getAttribute("request");
         System.out.println("Request Type: " + requestType);
         
+        /*
+            Check if request is to remove an employee.
+            If this is true, get the value of the employee ID from the request.
+            Then forward this request to the EmployeeRemoveEntityServlet.
+        */
         if (requestType.equals("remove"))
         {
             e_id = request.getParameter("e_id");
@@ -114,10 +123,16 @@ public class EmployeeServlet extends HttpServlet {
             System.out.println("Elsewhere");
             
             dispatcher
-               = getServletContext().getRequestDispatcher("/EmployeeRemoveEntityServlet");
+                = getServletContext().getRequestDispatcher("/EmployeeRemoveEntityServlet");
             dispatcher.forward(request, response);
         }
         
+        /*
+            Then check if request is to add an employee.
+            If this is true, get the values of the employee's first name,
+             last name and job title from the request.
+            Then forward this request to the EmployeeAddEntityServlet.
+        */
         else if (requestType.equals("add"))
         {
             System.out.println("Here");
@@ -126,198 +141,200 @@ public class EmployeeServlet extends HttpServlet {
             last_name = request.getParameter("last_name");
             job = request.getParameter("job");
             
-               dispatcher
-                  = getServletContext().getRequestDispatcher("/EmployeeAddEntityServlet");
-               dispatcher.forward(request, response);
+            dispatcher
+                = getServletContext().getRequestDispatcher("/EmployeeAddEntityServlet");
+            dispatcher.forward(request, response);
         }
         
+        /*
+            Otherwise the request must be to search for an employee.
+            The servlet will connect to the database, and run queries to retrieve
+             the employee's details and assigned tasks.
+        */
         else
         {
             e_id = request.getParameter("e_id");
             
             if (e_id== null || e_id.length() == 0)
-               e_id = "%";
-            // query database
+                e_id = "%";
+            
             Connection conn = null;
             PreparedStatement prepStmt = null;
             ResultSet resultSet = null;
             ResultSet resultSet2 = null;
-            if (sqlCommand != null && dataSauce != null)
+            if (sqlCommandEmployee != null && dataSauce != null)
             {
-               try
-               {
-                  conn = dataSauce.getConnection();
-                  prepStmt = conn.prepareStatement(sqlCommand);
-                  prepStmt.setString(1, e_id);
-                  resultSet = prepStmt.executeQuery();
-                  logger.info("Successfully sasd executed query for e_id "
-                     + e_id);
-               }
-               catch (SQLException e)
-               {
-                  logger.severe("Unable to execute query for e_id "
-                     + e_id + ": " + e);
-               }
-            }
-
-            if (sqlCommand2 != null && dataSauce != null)
-            {
-               try
-               {
-                  conn = dataSauce.getConnection();
-                  prepStmt = conn.prepareStatement(sqlCommand2);
-                  prepStmt.setString(1, e_id);
-                  resultSet2 = prepStmt.executeQuery();
-                  logger.info("Successfully executed tasks query for e_id "
-                     + e_id);
-               }
-               catch (SQLException e)
-               {
-                  logger.severe("Unable to execute tasks query for e_id "
-                     + e_id + ": " + e);
-               }
-            }
-
-              response.setContentType("text/html;charset=UTF-8");
-              try (PrintWriter out = response.getWriter()) {
-                  /* TODO output your page here. You may use following sample code. */
-              out.println("<!DOCTYPE html>");
-               out.println("<html>");
-               out.println("<head>");
-               out.println("<title>EmployeeServlet Response</title>");
-               out.println("</head>");
-               out.println("<body>");
-               out.println("<h1>Found Employee with ID " + filter(e_id)
-                  + "</h1>");
-               if (resultSet != null)
-               {
-                  out.println("<TABLE cellspacing=1 border=5>");
-                  out.println("<TR><TD><B>First Name</B></TD>"
-                     + "<TD><B>Last Name</B></TD>"
-                     + "<TD><B>Job</B></TD></TR>");
-                  try
-                  {
-                     while (resultSet.next())
-                     {
-                        fname = resultSet.getString("first_name");
-                        lname = resultSet.getString("last_name");
-                        String job_title = resultSet.getString("job");
-                        out.println("<TR><TD>" + filter(fname) + "</TD><TD>"
-                           + filter(lname) + "</TD><TD>"
-                           + filter(job_title) +"</TD></TR>");
-                     }
-                  }
-                  catch (SQLException e)
-                  {
-                     logger.severe("Exception in results "
+                /*
+                   Attempt to establish a connection the database, then query
+                    the database for the employee's details.
+                   Otherwise catch the error and print error message to log
+                */
+                try
+                {
+                    conn = dataSauce.getConnection();
+                    prepStmt = conn.prepareStatement(sqlCommandEmployee);
+                    prepStmt.setString(1, e_id);
+                    resultSet = prepStmt.executeQuery();
+                    logger.info("Successfully sasd executed query for e_id "
+                        + e_id);
+                }
+                catch (SQLException e)
+                {
+                    logger.severe("Unable to execute query for e_id "
                         + e_id + ": " + e);
-                  }
-                  out.println("</TABLE>");
-               }
-               
-                    if(fname == null || lname == null || fname.length() == 0 || lname.length() == 0)
+                }
+            }
+
+            if (sqlCommandTask != null && dataSauce != null)
+            {
+                /*
+                   Attempt to establish a connection the database, then query
+                    the database for the details of employee's assigned tasks.
+                   Otherwise catch the error and print error message to log
+                */
+                try
+                {
+                    conn = dataSauce.getConnection();
+                    prepStmt = conn.prepareStatement(sqlCommandTask);
+                    prepStmt.setString(1, e_id);
+                    resultSet2 = prepStmt.executeQuery();
+                    logger.info("Successfully executed tasks query for e_id "
+                        + e_id);
+                }
+                catch (SQLException e)
+                {
+                    logger.severe("Unable to execute tasks query for e_id "
+                        + e_id + ": " + e);
+                }
+            }
+
+            // Creates the web page for employee search results
+            response.setContentType("text/html;charset=UTF-8");
+            try (PrintWriter out = response.getWriter()) {
+                /* TODO output your page here. You may use following sample code. */
+                out.println("<!DOCTYPE html>");
+                out.println("<html>");
+                out.println("<head>");
+                out.println("<title>EmployeeServlet Response</title>");
+                out.println("</head>");
+                out.println("<body>");
+                out.println("<h1>Found Employee with ID " + filter(e_id)
+                   + "</h1>");
+                if (resultSet != null)
+                {
+                    out.println("<TABLE cellspacing=1 border=5>");
+                    out.println("<TR><TD><B>First Name</B></TD>"
+                        + "<TD><B>Last Name</B></TD>"
+                        + "<TD><B>Job</B></TD></TR>");
+                    try
                     {
-                            try
-                            {
-                               if (prepStmt != null)
-                                  prepStmt.close();
-                               if (conn != null)
-                                  conn.close(); // IDK IF THIS NEEDED PLZ CHJHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
-                            }
-                            catch (SQLException e)
-                            {  // ignore
-                            }
-
-                            response.sendRedirect("redirected.jsp");
+                        while (resultSet.next())
+                        {
+                            fname = resultSet.getString("first_name");
+                            lname = resultSet.getString("last_name");
+                            String job_title = resultSet.getString("job");
+                            out.println("<TR><TD>" + filter(fname) + "</TD><TD>"
+                                + filter(lname) + "</TD><TD>"
+                                + filter(job_title) +"</TD></TR>");
+                        }
                     }
+                    catch (SQLException e)
+                    {
+                        logger.severe("Exception in results "
+                            + e_id + ": " + e);
+                    }
+                    out.println("</TABLE>");
+                }
+               
+                if(fname == null || lname == null || fname.length() == 0 || lname.length() == 0)
+                {
+                    try
+                    {
+                       if (prepStmt != null)
+                          prepStmt.close();
+                       if (conn != null)
+                          conn.close();
+                    }
+                    catch (SQLException e)
+                    { 
+                    }
+
+                    response.sendRedirect("redirected.jsp");
+                }
                
 
-               if (resultSet2 != null)
-               {
-                  out.println("<TABLE cellspacing=1 border=5>");
-                  out.println("<br><TR><TD><B>Task ID</B></TD>"
-                     + "<TD><B>Task Name</B></TD></TR>");
-                  try
-                  {
-                     while (resultSet2.next())
-                     {
-                        String t_id = resultSet2.getString("task_id");
-                        String task_name = resultSet2.getString("task_name");
-                        out.println("<TR><TD>" + filter(t_id) + "</TD><TD>"
-                           + filter(task_name) +"</TD></TR>");
-                     }
-                  }
-                  catch (SQLException e)
-                  {   
-                     logger.severe("Exception in results "
-                        + e_id + ": " + e);
-                  }
-                  out.println("</TABLE>");
-               }
+                if (resultSet2 != null)
+                {
+                    out.println("<TABLE cellspacing=1 border=5>");
+                    out.println("<br><TR><TD><B>Task ID</B></TD>"
+                        + "<TD><B>Task Name</B></TD></TR>");
+                    try
+                    {
+                        while (resultSet2.next())
+                        {
+                            String t_id = resultSet2.getString("task_id");
+                            String task_name = resultSet2.getString("task_name");
+                            out.println("<TR><TD>" + filter(t_id) + "</TD><TD>"
+                                + filter(task_name) +"</TD></TR>");
+                        }
+                    }
+                    catch (SQLException e)
+                    {   
+                        logger.severe("Exception in results "
+                            + e_id + ": " + e);
+                    }
+                    out.println("</TABLE>");
+                }
 
-               try
-               {
-                  if (prepStmt != null)
-                     prepStmt.close();
-                  if (conn != null)
-                     conn.close(); // release conn back to pool
-               }
-               catch (SQLException e)
-               {  // ignore
-               }
-               out.println("<P><A href=" + QUOTE
-                  + response.encodeURL("index.jsp") + QUOTE + ">"
-                  + "Return to the search page</A></P>");
-               out.println("</body>");
-               out.println("</html>");
-              out.println("<P><A href=" + QUOTE
-                  + response.encodeURL("index.jsp") + QUOTE + ">"
-                  + "View the jobs</A></P>");
-                      out.println("<P><A href=" + QUOTE
-                  + response.encodeURL("add.jsp") + QUOTE + ">"
-                  + "Enter another employee</A></P>");
-                      out.println("<P><A href=" + QUOTE
-                  + response.encodeURL("remove.jsp") + QUOTE + ">"
-                  + "Remove an employee</A></P>");
-              out.println("<h5>While searching your session id is noted as: " + userId
-                  + "</h5>");
-               out.println("</body>");
-               out.println("</html>");
-              }
+                try
+                {
+                    if (prepStmt != null)
+                        prepStmt.close();
+                    if (conn != null)
+                        conn.close(); // release conn back to pool
+                }
+                catch (SQLException e)
+                {  // ignore
+                }
+                out.println("<P><A href=" + QUOTE
+                    + response.encodeURL("index.jsp") + QUOTE + ">"
+                    + "Return to the search page</A></P>");
+                out.println("</body>");
+                out.println("</html>");
+                out.println("<P><A href=" + QUOTE
+                    + response.encodeURL("add.jsp") + QUOTE + ">"
+                    + "Enter another employee</A></P>");
+                out.println("<P><A href=" + QUOTE
+                    + response.encodeURL("remove.jsp") + QUOTE + ">"
+                    + "Remove an employee</A></P>");
+                out.println("<h5>While searching your session id is noted as: " + userId
+                    + "</h5>");
+                out.println("</body>");
+                out.println("</html>");
+            }
         }
     }
     
-    /*
-     <table cellpadding="3" cellspacing="0" border="2">
-            <tr>
-                <td>Search the database:</td>
-               <td><input type="text" name="e_id"/></td>
-            </tr>
-         </table>
-          <br><INPUT type="submit" value="Search"/><br>   
-    */
-    
-       public static String filter(String text)
-   {
-      StringBuilder buffer = new StringBuilder();
-      for (int i = 0; i < text.length(); i++)
-      {
-         char c = text.charAt(i);
-         if (c == '<')
-            buffer.append("&lt;");
-         else if (c == '>')
-            buffer.append("&gt;");
-         else if (c == '\"')
-            buffer.append("&quot;");
-         else if (c == '\'')
-            buffer.append("&#39;");
-         else if (c == '&')
-            buffer.append("&amp;");
-         else
-            buffer.append(c);
-      }
-      return buffer.toString();
-   }
+    public static String filter(String text) {
+        StringBuilder buffer = new StringBuilder();
+        for (int i = 0; i < text.length(); i++)
+        {
+            char c = text.charAt(i);
+            if (c == '<')
+                buffer.append("&lt;");
+            else if (c == '>')
+                buffer.append("&gt;");
+            else if (c == '\"')
+                buffer.append("&quot;");
+            else if (c == '\'')
+                buffer.append("&#39;");
+            else if (c == '&')
+                buffer.append("&amp;");
+            else
+                buffer.append(c);
+        }
+        return buffer.toString();
+    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

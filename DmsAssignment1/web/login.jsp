@@ -18,7 +18,6 @@
             <h4> Enter username:</h4> <input type ="text" name = "username"><br>
             <h4> Enter password: </h4><input type ="password" name = "password"><br>
             <br> <input type = "submit" value = "login"><br>
-        </form>
-                                 
+        </form>                     
     </body>
 </html>

@@ -11,18 +11,17 @@
         <title>Customer Details</title>
     </head>
     <body>
-         <%
+        <%
+            // Redirect user to login page if they attempt to access page without logging in
             if(session.getAttribute("username") == null)
-            {
                 response.sendRedirect("login.jsp");
-            }
         %>
         <h1>Some form bad input has been detected</h1>
         <br/>
         <h3>Use the link below to return back to the main page</h3>
         <br>
-      <a href='<%= response.encodeURL(request.getContextPath()) %>'>
-         Return to main page
-      </a>
+        <a href='<%= response.encodeURL(request.getContextPath()) %>'>
+            Return to main page
+        </a>
     </body>
 </html>
